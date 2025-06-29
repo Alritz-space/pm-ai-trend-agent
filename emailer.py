@@ -49,14 +49,6 @@ msg["From"] = formataddr((str(Header("TrendBot", "utf-8")), GMAIL_USER))
 msg["To"] = TO_EMAIL
 msg.attach(MIMEText(html_body, "html", _charset="utf-8"))
 
-# 🧪 DEBUG: Log what’s about to be sent
-print("📧 Debug Info:")
-print("From:", repr(GMAIL_USER))
-print("To:", repr(TO_EMAIL))
-print("Post Preview:", repr(post[:100]))  # First 100 chars
-print("Full Email Payload Preview (first 300 chars):")
-print(msg.as_string()[:300])
-
 # 📤 Send the email
 try:
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
