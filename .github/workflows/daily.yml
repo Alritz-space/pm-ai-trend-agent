@@ -1,1 +1,44 @@
+name: Daily Trend Pipeline
+
+on:
+  schedule:
+    # 8:30 AM IST = 3:00 AM UTC
+    - cron: '0 3 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repo
+        uses: actions/checkout@v3
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: 🧪 Install dependencies
+        run: |
+          pip install praw requests pytz
+
+      - name: 🔍 Scrape Trends
+        run: python scraper.py
+        env:
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_SECRET: ${{ secrets.REDDIT_SECRET }}
+
+      - name: 🧠 Analyze Trend
+        run: python analyzer.py
+
+      - name: ✍️ Generate LinkedIn Post
+        run: python post_generator.py
+
+      - name: ✉️ Send Email via Gmail
+        run: python emailer.py
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASS: ${{ secrets.GMAIL_APP_PASS }}
+          TO_EMAIL: ${{ secrets.TO_EMAIL }}
 
