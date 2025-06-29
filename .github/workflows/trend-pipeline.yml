@@ -23,6 +23,9 @@ jobs:
 
       - name: 🧠 Run Reddit scraper
         run: python scraper.py
+        env:
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_SECRET: ${{ secrets.REDDIT_SECRET }}
 
       - name: 📊 Analyze scraped data
         run: python analyzer.py
