@@ -7,21 +7,21 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import datetime
 
+# 🌐 Get environment variables
 GMAIL_USER = os.getenv("GMAIL_USER")
 GMAIL_PASS = os.getenv("GMAIL_APP_PASS")
 TO_EMAIL = os.getenv("TO_EMAIL", GMAIL_USER)
 
-# Read all variants
+# 📄 Read LinkedIn post options (in UTF-8)
 with open("linkedin_post.txt", "r", encoding="utf-8") as f:
     content = f.read()
 
-# Split into individual posts
+# 🧠 Split into post variants
 variants = re.split(r"--- OPTION \d+ ---", content)[1:]  # Skip header
 post_blocks = []
 
 for i, text in enumerate(variants, 1):
     preview = text.strip().replace('\n', '<br>')
-    # ⚠️ Replace with your actual GitHub Pages / webhook URL later
     button_link = f"https://Alritz-space.github.io/pm-ai-trend-agent/choose.html?choice={i}"
     post_html = f"""
     <h3>Option {i}</h3>
@@ -33,22 +33,22 @@ for i, text in enumerate(variants, 1):
     """
     post_blocks.append(post_html)
 
-# Assemble full email
-html = f"""
+# ✉️ Assemble the HTML email
+html_content = f"""
 <h2>Your AI+PM Trend for Today 🚀</h2>
 <p>We've generated 3 LinkedIn post options using an LLM. Choose one to schedule:</p>
 {''.join(post_blocks)}
 <p>⚙️ Generated automatically at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
 """
 
+# 💌 Build email message using UTF-8
 msg = MIMEMultipart("alternative")
 msg["Subject"] = "🧠 Your LinkedIn Post Options Are Ready"
 msg["From"] = GMAIL_USER
 msg["To"] = TO_EMAIL
+msg.attach(MIMEText(html_content.encode('utf-8'), "html", _charset="utf-8"))
 
-# ✅ Fix: Ensure UTF-8 encoding is explicitly used here
-msg.attach(MIMEText(html, "html", _charset="utf-8"))
-
+# 📤 Send email via Gmail
 try:
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(GMAIL_USER, GMAIL_PASS)
