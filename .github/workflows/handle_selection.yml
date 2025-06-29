@@ -1,0 +1,35 @@
+name: Handle Post Selection
+
+on:
+  repository_dispatch:
+    types: [select_post]
+
+jobs:
+  pick_variant:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Extract selected post
+        run: |
+          CHOICE=${{ github.event.client_payload.choice }}
+          echo "User picked option: $CHOICE"
+
+          # Extract the selected variant
+          awk -v RS='--- OPTION [0-9]+ ---' "NR==$((CHOICE+1))" linkedin_post.txt > final_post.txt
+
+          echo "✅ Extracted post to final_post.txt"
+
+      - name: Commit final post
+        run: |
+          git config user.name "ai-trend-agent"
+          git config user.email "ai-trend-agent@users.noreply.github.com"
+          git add final_post.txt
+          git commit -m "✅ Committed selected LinkedIn post (Option ${{ github.event.client_payload.choice }})"
+          git push
