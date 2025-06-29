@@ -41,6 +41,7 @@ jobs:
       run: |
         git config --global user.name "github-actions"
         git config --global user.email "actions@github.com"
+        git remote set-url origin git@github.com:${{ github.repository }}.git
         git add trends.py post_seed.txt
         git commit -m "🤖 Daily trend update" || echo "No changes to commit"
         git push origin HEAD:main
