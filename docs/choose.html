@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Saving your choice…</title>
+  <script>
+    // ===== CONFIG =====
+    const owner   = "{{GITHUB_OWNER}}";   // e.g. "rj"
+    const repo    = "{{GITHUB_REPO}}";    // e.g. "pm-ai-trend-agent"
+    const token   = "{{GITHUB_TOKEN}}"; // will be templated in Action
+    // ==================
+
+    // Grab ?choice=1 from URL
+    const params  = new URLSearchParams(location.search);
+    const choice  = params.get("choice") || "1";
+
+    async function dispatch() {
+      try {
+        await fetch(`https://api.github.com/repos/${owner}/${repo}/dispatches`, {
+          method: "POST",
+          headers: {
+            "Accept": "application/vnd.github.everest-preview+json",
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            event_type: "select_post",
+            client_payload: { choice }
+          })
+        });
+        document.body.innerHTML =
+          `<h2>✅ Got it!</h2><p>Your LinkedIn post option ${choice} is being prepared.</p>`;
+      } catch (err) {
+        console.error(err);
+        document.body.innerHTML =
+          `<h2>❌ Oops</h2><p>Something went wrong. Try again.</p>`;
+      }
+    }
+    window.onload = dispatch;
+  </script>
+</head>
+<body>
+  <h2>Submitting your choice…</h2>
+</body>
+</html>
