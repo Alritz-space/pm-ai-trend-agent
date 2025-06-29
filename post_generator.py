@@ -3,6 +3,7 @@
 import re
 from transformers import pipeline, set_seed
 from datetime import datetime
+import torch
 
 # 📖 Load trend input
 with open("post_seed.txt", "r", encoding="utf-8") as f:
