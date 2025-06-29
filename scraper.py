@@ -3,10 +3,9 @@
 import praw
 import requests
 from datetime import datetime
-import json
 import os
 
-# ⛳ Load Reddit credentials from environment variables (GitHub Secrets)
+# Load Reddit credentials from GitHub Secrets
 REDDIT_CLIENT_ID = os.getenv("REDDIT_CLIENT_ID")
 REDDIT_SECRET = os.getenv("REDDIT_SECRET")
 REDDIT_AGENT = "trendScraper:v1 (by u/alritz-space)"
@@ -57,6 +56,12 @@ def scrape_hackernews():
             })
     return stories
 
+def write_to_python(trends, filename="trends.py"):
+    with open(filename, "w") as f:
+        f.write("# Auto-generated trending content\n\n")
+        f.write("trending_data = ")
+        f.write(repr(trends))  # Python-safe representation
+
 def main():
     reddit_trends = scrape_reddit()
     hn_trends = scrape_hackernews()
@@ -64,10 +69,8 @@ def main():
     all_trends = reddit_trends + hn_trends
     all_trends = sorted(all_trends, key=lambda x: (x['score'] + x['comments']), reverse=True)
 
-    with open("trends.json", "w") as f:
-        json.dump(all_trends, f, indent=2)
-
-    print(f"✅ Scraped {len(all_trends)} trends!")
+    write_to_python(all_trends)
+    print(f"✅ Saved {len(all_trends)} trends to trends.py")
 
 if __name__ == "__main__":
     main()
