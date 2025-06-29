@@ -1,59 +1,56 @@
 # emailer.py
 
-import smtplib
 import os
-import unicodedata
+import smtplib
+import re
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.header import Header
-from email.utils import formataddr
 
+GMAIL_USER = os.getenv("GMAIL_USER")
+GMAIL_PASS = os.getenv("GMAIL_APP_PASS")
+TO_EMAIL = os.getenv("TO_EMAIL", GMAIL_USER)
 
-# ✅ Clean and normalize all input to UTF-8 safe text
-def clean(text):
-    if not text:
-        return ""
-    text = text.replace('\xa0', ' ')                          # Replace non-breaking spaces
-    text = unicodedata.normalize('NFKC', text)                # Normalize curly quotes, weird dashes
-    return text.encode('utf-8', 'ignore').decode('utf-8')     # Drop un-encodable chars
+# Read all variants
+with open("linkedin_post.txt", "r", encoding="utf-8") as f:
+    content = f.read()
 
+# Split into individual posts
+variants = re.split(r"--- OPTION \d+ ---", content)[1:]  # Skip header
+post_blocks = []
 
-# 🔐 Load environment variables (sanitized)
-GMAIL_USER = clean(os.getenv("GMAIL_USER", ""))
-GMAIL_PASS = clean(os.getenv("GMAIL_APP_PASS", ""))
-TO_EMAIL = clean(os.getenv("TO_EMAIL", GMAIL_USER))
+for i, text in enumerate(variants, 1):
+    preview = text.strip().replace('\n', '<br>')
+    # ⚠️ Replace with your actual GitHub Pages / webhook URL later
+    button_link = f"https://example.com/schedule?choice={i}"
+    post_html = f"""
+    <h3>Option {i}</h3>
+    <div style="background:#f4f4f4;padding:10px;border-radius:6px;font-family:monospace;font-size:14px;">{preview}</div>
+    <p>
+        <a href="{button_link}" style="background:#0072b1;color:white;padding:10px 20px;border-radius:5px;text-decoration:none;">✅ Use This Post</a>
+    </p>
+    <hr>
+    """
+    post_blocks.append(post_html)
 
-# 🧾 Load the LinkedIn post text (cleaned)
-try:
-    with open("linkedin_post.txt", "r", encoding="utf-8") as f:
-        post = clean(f.read())
-except Exception as e:
-    print(f"❌ Error reading linkedin_post.txt: {e}")
-    post = "⚠️ Failed to load LinkedIn post."
-
-# 📝 Construct the HTML email body
-html_body = f"""
-<h2>Your AI+PM Trend for Today</h2>
-<p>Here's your suggested LinkedIn post:</p>
-<pre style="background:#f4f4f4;padding:10px;border-radius:6px;font-size:14px;">{post}</pre>
-<p><b>Do you want to post this?</b></p>
-<a href="https://example.com/schedule?yes=true" 
-   style="background:#0072b1;color:white;padding:10px 20px;
-   border-radius:5px;text-decoration:none;">✅ Yes, Schedule It</a>
+# Assemble full email
+html = f"""
+<h2>Your AI+PM Trend for Today 🚀</h2>
+<p>We've generated 3 LinkedIn post options using an LLM. Choose one to schedule:</p>
+{''.join(post_blocks)}
+<p>⚙️ Generated automatically at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
 """
 
-# ✉️ Create MIME email
 msg = MIMEMultipart("alternative")
-msg["Subject"] = str(Header("🧠 Your LinkedIn Post is Ready", "utf-8"))
-msg["From"] = formataddr((str(Header("TrendBot", "utf-8")), GMAIL_USER))
+msg["Subject"] = "🧠 Your LinkedIn Post Options Are Ready"
+msg["From"] = GMAIL_USER
 msg["To"] = TO_EMAIL
-msg.attach(MIMEText(html_body, "html", _charset="utf-8"))
 
-# 📤 Send the email
+msg.attach(MIMEText(html, "html"))
+
 try:
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(GMAIL_USER, GMAIL_PASS)
         server.sendmail(GMAIL_USER, TO_EMAIL, msg.as_string())
-    print("✅ Email sent successfully via Gmail.")
+    print("✅ Email sent with 3 post options.")
 except Exception as e:
     print(f"❌ Failed to send email: {e}")
