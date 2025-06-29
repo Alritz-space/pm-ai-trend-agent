@@ -20,6 +20,7 @@ jobs:
 
       - name: 📦 Install dependencies
         run: pip install praw requests
+        run: pip install pytz
 
       - name: 🧠 Run Reddit scraper
         run: python scraper.py
