@@ -10,8 +10,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Inject token & owner/repo
         run: |
-          sed -i "s/{{GITHUB_OWNER}}/${{ github.repository_owner }}/g" docs/choose.html
-          sed -i "s/{{GITHUB_REPO}}/${{ github.event.repository.name }}/g" docs/choose.html
+          sed -i "s/{{GT_OWNER}}/${{ github.repository_owner }}/g" docs/choose.html
+          sed -i "s/{{GT_REPO}}/${{ github.event.repository.name }}/g" docs/choose.html
           sed -i "s/{{GITHUB_TOKEN}}/${{ secrets.GH_PAGES_DISPATCH_TOKEN }}/g" docs/choose.html
       - name: Commit updated file
         run: |
