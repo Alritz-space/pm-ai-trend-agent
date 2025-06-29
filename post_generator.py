@@ -4,41 +4,61 @@ from datetime import datetime
 from random import sample, choice
 import re
 
-with open("post_seed.txt", "r") as f:
+# 🕰️ Get context like day of week
+today = datetime.now().strftime("%A")
+
+# 📖 Load seed content
+with open("post_seed.txt", "r", encoding="utf-8") as f:
     raw = f.read()
 
-# 🔍 Extract data
-title = re.search(r"Trend Title:\s*(.+)", raw).group(1)
-platform = re.search(r"Source:\s*(.+)", raw).group(1)
-link = re.search(r"Link:\s*(.+)", raw).group(1)
+# 🔍 Extract structured trend data
+title = re.search(r"Trend Title:\s*(.+)", raw).group(1).strip()
+platform = re.search(r"Source:\s*(.+)", raw).group(1).strip()
+link = re.search(r"Link:\s*(.+)", raw).group(1).strip()
 
-# 🪝 Hook examples
+# 🪝 Scroll-stopping hooks
 hooks = [
-    f"Why this trend is a wake-up call for Product Managers 👇",
-    f"This headline stopped me in my tracks today: '{title}'",
-    f"AI in enterprise is moving fast. Here's the latest shift →",
-    f"PMs, if you ignore this, you're already behind. 👇",
-    f"Not just a trend — a signal of where we're heading 💡"
+    f"Product leaders — {today} just dropped this 💣",
+    f"PMs, here's what {platform} is buzzing about today 👇",
+    f"This headline from {platform} deserves your full attention →",
+    f"Still catching up this {today}? Here's the one trend to know 👇",
+    f"This caught my eye while scanning {platform} — and it should catch yours too 🧠",
+    f"AI x PM: The future just got clearer. Here's the signal →"
 ]
 
-# 🏷️ Hashtag pools
+# 🏷️ Hashtags (fresh 5 daily)
 hashtag_pool = [
     "#ProductManagement", "#AI", "#EnterpriseSoftware", "#LLM", "#FutureOfWork",
-    "#Innovation", "#Leadership", "#TechTrends", "#ArtificialIntelligence"
+    "#TechLeadership", "#Strategy", "#SaaS", "#DigitalTransformation", "#Agile"
 ]
 hashtags = " ".join(sample(hashtag_pool, 5))
 
-# 👥 Tag options
+# 👥 Thought leader tagging
 tagged_people = [
-    "@shreyas", "@lennysan", "@andrewchen", "@pmarca", "@sama"
+    "@shreyas", "@lennysan", "@andrewchen", "@pmarca", "@sama",
+    "@bhorowitz", "@adamnash", "@nireyal", "@benedictevans"
 ]
 tags = " ".join(sample(tagged_people, 2))
 
-# 📣 Final CTA
-question = "What would you do if this showed up in your org tomorrow?"
-cta = "Drop your thoughts 👇"
+# 📣 Engagement CTA options
+questions = [
+    "How would you act on this insight in your org?",
+    "Curious to hear—does this align with what you're seeing?",
+    "Would you bet on this trend for your roadmap?",
+    "Seen this in your enterprise stack yet?",
+    "Is your team prepared for this shift?"
+]
+calls_to_action = [
+    "Let’s unpack this 👇",
+    "Share your POV in comments ⬇️",
+    "Let’s debate 👇",
+    "Open to different takes — comment below ⬇️"
+]
 
-# 🧠 Compose final post
+question = choice(questions)
+cta = choice(calls_to_action)
+
+# 🧠 Compose the final post
 post = f"""{choice(hooks)}
 
 📌 {title}
@@ -51,9 +71,8 @@ post = f"""{choice(hooks)}
 {cta}
 """
 
-# 📝 Save it for emailer or preview
-with open("linkedin_post.txt", "w") as f:
+# 📝 Save to file (UTF-8)
+with open("linkedin_post.txt", "w", encoding="utf-8") as f:
     f.write(post)
 
-print("✅ LinkedIn post generated.")
-
+print("✅ LinkedIn post generated with enhanced flair.")
