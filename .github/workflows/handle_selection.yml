@@ -26,10 +26,14 @@ jobs:
 
           echo "✅ Extracted post to final_post.txt"
 
-      - name: Commit final post
+       - name: Commit final post
+        env:
+          TOKEN: ${{ secrets.FG_PAT }}
         run: |
           git config user.name "ai-trend-agent"
           git config user.email "ai-trend-agent@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
           git add final_post.txt
           git commit -m "✅ Committed selected LinkedIn post (Option ${{ github.event.client_payload.choice }})"
           git push
+
