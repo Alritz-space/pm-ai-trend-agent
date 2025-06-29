@@ -1,54 +1,52 @@
-name: Trend Scraper & Analyzer
+name: Daily Trend Pipeline
 
 on:
   schedule:
-    - cron: '30 2 * * *' # Runs at 8:30 AM IST (2:30 UTC)
-  workflow_dispatch: # manual trigger
+    - cron: '0 3 * * *'  # ⏰ Runs daily at 8:30 AM IST (3 AM UTC)
+  workflow_dispatch:      # 🕹️ Manual trigger from GitHub UI
 
 jobs:
-  build:
+  trendbot:
     runs-on: ubuntu-latest
 
-    env:
-      REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
-      REDDIT_SECRET: ${{ secrets.REDDIT_SECRET }}
-
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      - name: 🧾 Checkout repo
+        uses: actions/checkout@v3
 
-    - name: Set up SSH
-      uses: webfactory/ssh-agent@v0.9.1
-      with:
-        ssh-private-key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
-          
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-    - name: Install dependencies
-      run: |
-        pip install praw requests pytz
+      - name: 📦 Install dependencies
+        run: pip install praw requests
 
-    - name: Run scraper
-      run: python scraper.py
+      - name: 🧠 Run Reddit scraper
+        run: python scraper.py
 
-    - name: Run analyzer
-      run: python analyzer.py
+      - name: 📊 Analyze scraped data
+        run: python analyzer.py
 
-    - name: Commit results
-      run: |
-        git config --global user.name "github-actions"
-        git config --global user.email "actions@github.com"
-        git remote set-url origin git@github.com:${{ github.repository }}.git
-        git add trends.py post_seed.txt
-        git commit -m "🤖 Daily trend update" || echo "No changes to commit"
-        git push origin HEAD:main
+      - name: 📝 Generate LinkedIn post
+        run: python post_generator.py
 
-- name: Send Email with CTA (Gmail)
-      run: python emailer.py
-      env:
-        GMAIL_USER: ${{ secrets.GMAIL_USER }}
-        GMAIL_APP_PASS: ${{ secrets.GMAIL_APP_PASS }}
-        TO_EMAIL: ${{ secrets.TO_EMAIL }}
+      - name: ✉️ Send email with Gmail (includes CTA)
+        run: python emailer.py
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASS: ${{ secrets.GMAIL_APP_PASS }}
+          TO_EMAIL: ${{ secrets.TO_EMAIL }}
+
+      - name: 🔐 Set up SSH (for Git push)
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+
+      - name: 💾 Commit & push updated trend + post
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git remote set-url origin git@github.com:${{ github.repository }}.git
+          git add trends.py post_seed.txt linkedin_post.txt
+          git commit -m "🔄 Daily trend + post update" || echo "No new changes"
+          git push origin HEAD:main
