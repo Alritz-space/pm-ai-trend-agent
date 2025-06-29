@@ -2,28 +2,32 @@
 
 import smtplib
 import os
+import unicodedata
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.header import Header
 from email.utils import formataddr
 
-# 🔐 Load credentials from environment
+def clean_text(text):
+    # Normalize Unicode, replace non-breaking spaces, remove invisible chars
+    text = text.replace('\xa0', ' ')                     # replace NBSP
+    text = unicodedata.normalize("NFKD", text)           # normalize quotes, dashes etc.
+    return ''.join(c for c in text if ord(c) < 65535)    # strip any extreme Unicode
+
+# 🔐 Credentials from env
 GMAIL_USER = os.getenv("GMAIL_USER")
 GMAIL_PASS = os.getenv("GMAIL_APP_PASS")
-TO_EMAIL = os.getenv("TO_EMAIL", GMAIL_USER)  # fallback to self
+TO_EMAIL = os.getenv("TO_EMAIL", GMAIL_USER)
 
-# 📥 Read post content safely
+# 📥 Read and clean post
 try:
     with open("linkedin_post.txt", "r", encoding="utf-8") as f:
-        post = f.read()
+        post = clean_text(f.read().strip())
 except Exception as e:
     print(f"❌ Failed to read linkedin_post.txt: {e}")
     post = "[Error loading post content]"
 
-# 🧼 Clean & normalize
-post = post.replace("\xa0", " ").strip()
-
-# 💌 Compose HTML email body
+# 💌 Email body
 html = f"""
 <h2>Your AI+PM Trend for Today</h2>
 <p>Here's your suggested LinkedIn post:</p>
@@ -32,13 +36,11 @@ html = f"""
 <a href="https://example.com/schedule?yes=true" style="background:#0072b1;color:white;padding:10px 20px;border-radius:5px;text-decoration:none;">✅ Yes, Schedule It</a>
 """
 
-# 📨 Construct MIME email with enforced UTF-8
+# 📨 Build MIME message
 msg = MIMEMultipart("alternative")
 msg["Subject"] = Header("🧠 Your LinkedIn Post is Ready", "utf-8")
-msg["From"] = formataddr((str(Header("LinkedIn Bot", "utf-8")), GMAIL_USER))
+msg["From"] = formataddr((str(Header("TrendBot", "utf-8")), GMAIL_USER))
 msg["To"] = TO_EMAIL
-
-# Attach UTF-8 encoded body
 msg.attach(MIMEText(html, "html", _charset="utf-8"))
 
 # 📤 Send email
