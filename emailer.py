@@ -21,7 +21,7 @@ post_blocks = []
 for i, text in enumerate(variants, 1):
     preview = text.strip().replace('\n', '<br>')
     # ⚠️ Replace with your actual GitHub Pages / webhook URL later
-    button_link = f"https://example.com/schedule?choice={i}"
+    button_link = f"https://{GITHUB_OWNER}.github.io/{GITHUB_REPO}/choose.html?choice={i}"
     post_html = f"""
     <h3>Option {i}</h3>
     <div style="background:#f4f4f4;padding:10px;border-radius:6px;font-family:monospace;font-size:14px;">{preview}</div>
