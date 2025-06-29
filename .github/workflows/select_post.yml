@@ -1,0 +1,28 @@
+name: Select LinkedIn Post
+
+on:
+  repository_dispatch:
+    types: [select_post]
+
+jobs:
+  pick:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse choice & write selected_post.txt
+        env:
+          CHOICE: ${{ github.event.client_payload.choice }}
+        run: |
+          echo "📥 Choice index: $CHOICE"
+          # Extract chosen block from linkedin_post.txt
+          awk -v choice=$CHOICE '
+              BEGIN{RS="--- OPTION [0-9]+ ---"; ORS=""; c=0}
+              NR==choice+1 {print > "selected_post.txt"}
+          ' linkedin_post.txt
+      - name: Commit selection
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add selected_post.txt
+          git commit -m "✅ User selected post option ${{ github.event.client_payload.choice }}" || echo "No changes"
+          git push
