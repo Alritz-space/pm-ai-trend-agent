@@ -18,11 +18,11 @@ jobs:
         with:
           python-version: '3.10'
 
-     - name: 📦 Install dependencies
-       run: |
-        pip install praw requests
-        pip install pytz
-        pip install transformers accelerate
+      - name: 📦 Install dependencies
+        run: |
+         pip install praw requests
+         pip install pytz
+         pip install transformers accelerate
 
       - name: 🧠 Run Reddit scraper
         run: python scraper.py
