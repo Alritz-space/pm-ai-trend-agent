@@ -46,7 +46,8 @@ msg["Subject"] = "🧠 Your LinkedIn Post Options Are Ready"
 msg["From"] = GMAIL_USER
 msg["To"] = TO_EMAIL
 
-msg.attach(MIMEText(html, "html"))
+# ✅ Fix: Ensure UTF-8 encoding is explicitly used here
+msg.attach(MIMEText(html, "html", _charset="utf-8"))
 
 try:
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
