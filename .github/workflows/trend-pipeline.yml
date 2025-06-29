@@ -46,3 +46,9 @@ jobs:
         git commit -m "🤖 Daily trend update" || echo "No changes to commit"
         git push origin HEAD:main
 
+- name: Send Email with CTA (Gmail)
+      run: python emailer.py
+      env:
+        GMAIL_USER: ${{ secrets.GMAIL_USER }}
+        GMAIL_APP_PASS: ${{ secrets.GMAIL_APP_PASS }}
+        TO_EMAIL: ${{ secrets.TO_EMAIL }}
