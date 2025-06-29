@@ -11,8 +11,8 @@ def score_trend(trend):
     # Recency factor (max boost for <24hr)
     created = datetime.fromisoformat(trend["created"])
     if created.tzinfo is None:
-    created = created.replace(tzinfo=pytz.utc)
-    hours_old = (datetime.now(pytz.utc) - created).total_seconds() / 3600
+        created = created.replace(tzinfo=pytz.utc)
+        hours_old = (datetime.now(pytz.utc) - created).total_seconds() / 3600
 
     freshness_boost = max(0, 24 - hours_old) / 24  # 1 for fresh, 0 after a day
     total_score = score * (1 + freshness_boost)
