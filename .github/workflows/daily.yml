@@ -21,7 +21,7 @@ jobs:
 
       - name: 🧪 Install dependencies
         run: |
-          pip install praw requests pytz
+          pip install praw requests pytz transformers
 
       - name: 🔍 Scrape Trends
         run: python scraper.py
