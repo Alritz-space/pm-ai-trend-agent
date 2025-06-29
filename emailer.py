@@ -9,6 +9,8 @@ from email.mime.text import MIMEText
 GMAIL_USER = os.getenv("GMAIL_USER")
 GMAIL_PASS = os.getenv("GMAIL_APP_PASS")
 TO_EMAIL = os.getenv("TO_EMAIL", GMAIL_USER)
+GT_OWNER = os.getenv("GT_OWNER", "Alritz-space")
+GT_REPO = os.getenv("GT_REPO", "pm-ai-trend-agent")
 
 # Read all variants
 with open("linkedin_post.txt", "r", encoding="utf-8") as f:
