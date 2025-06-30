@@ -43,11 +43,10 @@ jobs:
           GMAIL_APP_PASS: ${{ secrets.GMAIL_APP_PASS }}
           TO_EMAIL: ${{ secrets.TO_EMAIL }}
 
-      - name: 🛠 Replace placeholders in choose.html
+      - name: 🔁 Replace placeholders in trigger.html
         run: |
-          sed -i "s|{{GT_OWNER}}|Alritz-space|g" docs/choose.html
-          sed -i "s|{{GT_REPO}}|pm-ai-trend-agent|g" docs/choose.html
-          sed -i "s|{{GITHUB_TOKEN}}|${{ secrets.FG_PAT }}|g" docs/choose.html
+          sed -i "s|{{GH_PAGES_BOT}}|${{ secrets.GH_PAGES_BOT }}|g" docs/trigger.html
+
 
       - name: 💾 Commit & push updated trend + post + HTML
         env:
