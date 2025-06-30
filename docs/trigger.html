@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <title>Preparing your post...</title>
@@ -8,32 +8,29 @@
   <h2>⏳ Preparing your LinkedIn post...</h2>
   <script>
     const choice = new URLSearchParams(location.search).get("choice") || "1";
-
-    fetch("https://api.github.com/repos/Alritz-space/pm-ai-trend-agent/actions/workflows/handle_selection.yml/dispatches", {
-      method: "POST",
-      headers: {
-        "Authorization": "Bearer {{GH_PAGES_BOT}}",
-        "Accept": "application/vnd.github+json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        ref: "main",
-        inputs: { choice }
-      })
-    })
-    .then(res => {
-      if (res.ok) {
-        document.body.innerHTML = `<h2>✅ Got it!</h2><p>Your LinkedIn post option ${choice} is being prepared.</p>`;
-      } else {
-        return res.json().then(data => {
-          console.error(data);
-          throw new Error(data.message || "Unknown error");
-        });
+    fetch(
+      "https://api.github.com/repos/Alritz-space/pm-ai-trend-agent/actions/workflows/handle_selection.yml/dispatches",
+      {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer {{GH_PAGES_BOT}}",
+          "Accept": "application/vnd.github+json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ ref: "main", inputs: { choice } })
       }
-    })
-    .catch(err => {
-      document.body.innerHTML = `<h2>❌ Something went wrong</h2><p>${err.message}</p>`;
-    });
+    )
+      .then(res => {
+        if (res.ok) {
+          document.body.innerHTML = `<h2>✅ Got it!</h2><p>Your LinkedIn post option ${choice} is being prepared.</p>`;
+        } else {
+          return res.json().then(data => { throw new Error(data.message); });
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        document.body.innerHTML = `<h2>❌ Something went wrong</h2><p>${err.message}</p>`;
+      });
   </script>
 </body>
 </html>
