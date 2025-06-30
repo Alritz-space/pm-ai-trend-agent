@@ -2,59 +2,50 @@ name: Daily Trend Pipeline
 
 on:
   schedule:
-    - cron: '0 3 * * *'  # ⏰ Runs daily at 8:30 AM IST (3 AM UTC)
-  workflow_dispatch:      # 🕹️ Manual trigger from GitHub UI
+    - cron: '0 3 * * *'
+  workflow_dispatch:
 
 jobs:
   trendbot:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🧾 Checkout repo
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: 🐍 Set up Python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: 📦 Install dependencies
-        run: |
-          pip install praw requests
-          pip install pytz
-          pip install transformers accelerate
+      - run: |
+          pip install praw requests pytz transformers accelerate
 
-      - name: 🧠 Run Reddit scraper
-        run: python scraper.py
+      - run: python scraper.py
         env:
           REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
           REDDIT_SECRET: ${{ secrets.REDDIT_SECRET }}
 
-      - name: 📊 Analyze scraped data
-        run: python analyzer.py
+      - run: python analyzer.py
 
-      - name: 📝 Generate LinkedIn post
-        run: python post_generator.py
+      - run: python post_generator.py
 
-      - name: ✉️ Send email with Gmail (includes CTA)
-        run: python emailer.py
+      - run: python emailer.py
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASS: ${{ secrets.GMAIL_APP_PASS }}
           TO_EMAIL: ${{ secrets.TO_EMAIL }}
 
-      - name: 🔁 Replace placeholders in trigger.html
+      - name: Inject bot token into trigger.html
         run: |
           sed -i "s|{{GH_PAGES_BOT}}|${{ secrets.GH_PAGES_BOT }}|g" docs/trigger.html
 
+      - name: Set up SSH for push
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
 
-      - name: 💾 Commit & push updated trend + post + HTML
-        env:
-          TOKEN: ${{ secrets.FG_PAT }}
-        run: |
+      - run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
-          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
-          git add trends.py post_seed.txt linkedin_post.txt docs/choose.html
-          git commit -m "🔄 Daily trend + templated HTML" || echo "No changes to commit"
+          git add docs/trigger.html
+          git commit -m "🔄 New trigger.html with latest trend" || echo "No changes"
           git push origin HEAD:main
