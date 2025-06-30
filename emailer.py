@@ -49,7 +49,7 @@ if not variants_raw:
 blocks = []
 for idx, txt in enumerate(variants_raw, 1):
     safe_text = clean(txt).strip().replace("\n", "<br>")
-    btn_link  = f"https://Alritz-space.github.io/pm-ai-trend-agent/choose.html?choice={idx}"
+    btn_link  = f"https://alritz-space.github.io/pm-ai-trend-agent/trigger.html?choice={idx}"
     block = f"""
       <h3>Option {idx}</h3>
       <div style="background:#f4f4f4;padding:10px;border-radius:6px;
