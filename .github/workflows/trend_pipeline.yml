@@ -47,7 +47,7 @@ jobs:
         run: |
           sed -i "s|{{GT_OWNER}}|Alritz-space|g" docs/choose.html
           sed -i "s|{{GT_REPO}}|pm-ai-trend-agent|g" docs/choose.html
-          sed -i "s|{{GITHUB_TOKEN}}|${{ secrets.FG_PAT }}|g" docs/choose.html
+          sed -i "s|{{FG_PAT}}|${{ secrets.FG_PAT }}|g" docs/choose.html
 
       - name: 💾 Commit & push updated trend + post + HTML
         env:
