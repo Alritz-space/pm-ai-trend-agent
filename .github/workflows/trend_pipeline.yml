@@ -47,7 +47,7 @@ jobs:
         run: |
           sed -i "s|{{GT_OWNER}}|Alritz-space|g" docs/choose.html
           sed -i "s|{{GT_REPO}}|pm-ai-trend-agent|g" docs/choose.html
-          sed -i "s|{{FG_PAT}}|${{ secrets.FG_PAT }}|g" docs/choose.html
+          sed -i "s|{{GITHUB_TOKEN}}|${{ secrets.FG_PAT }}|g" docs/choose.html
 
       - name: 💾 Commit & push updated trend + post + HTML
         env:
@@ -55,6 +55,7 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
           git add trends.py post_seed.txt linkedin_post.txt docs/choose.html
           git commit -m "🔄 Daily trend + templated HTML" || echo "No changes to commit"
-          git push https://x-access-token:${{ secrets.FG_PAT }}@github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}.git HEAD:${{ github.ref_name }}
+          git push origin HEAD:main
