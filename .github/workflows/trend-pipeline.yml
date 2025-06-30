@@ -20,9 +20,9 @@ jobs:
 
       - name: 📦 Install dependencies
         run: |
-         pip install praw requests
-         pip install pytz
-         pip install transformers accelerate
+          pip install praw requests
+          pip install pytz
+          pip install transformers accelerate
 
       - name: 🧠 Run Reddit scraper
         run: python scraper.py
@@ -43,22 +43,22 @@ jobs:
           GMAIL_APP_PASS: ${{ secrets.GMAIL_APP_PASS }}
           TO_EMAIL: ${{ secrets.TO_EMAIL }}
 
-      - name: 🔐 Set up SSH (for Git push)
-        uses: webfactory/ssh-agent@v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
-
       - name: 🛠 Replace placeholders in choose.html
         run: |
           sed -i "s|{{GT_OWNER}}|Alritz-space|g" docs/choose.html
           sed -i "s|{{GT_REPO}}|pm-ai-trend-agent|g" docs/choose.html
           sed -i "s|{{GITHUB_TOKEN}}|${{ secrets.FG_PAT }}|g" docs/choose.html
-      
-      - name: 💾 Commit & push updated trend + post
+
+      - name: 🔐 Set up SSH (for Git push)
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+
+      - name: 💾 Commit & push updated trend + post + HTML
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
           git remote set-url origin git@github.com:${{ github.repository }}.git
           git add trends.py post_seed.txt linkedin_post.txt docs/choose.html
-          git commit -m "🔄 Daily trend + post update" || echo "No new changes"
+          git commit -m "🔄 Daily trend + templated HTML"
           git push origin HEAD:main
