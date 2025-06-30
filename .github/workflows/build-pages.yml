@@ -1,4 +1,5 @@
 name: Build Pages with token
+
 on:
   push:
     paths: [ "docs/**" ]
@@ -6,17 +7,20 @@ on:
 jobs:
   inject:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
-      - name: Inject token & owner/repo
+
+      - name: 🔐 Inject token & repo info into trigger.html
         run: |
-          sed -i "s/{{GT_OWNER}}/${{ github.repository_owner }}/g" docs/choose.html
-          sed -i "s/{{GT_REPO}}/${{ github.event.repository.name }}/g" docs/choose.html
-          sed -i "s/{{GH_PAT}}/${{ secrets.GH_PAT }}/g" docs/choose.html
-      - name: Commit updated file
+          sed -i "s|{{GH_PAGES_BOT}}|${{ secrets.GH_PAGES_BOT }}|g" docs/trigger.html
+          sed -i "s|{{GT_OWNER}}|${{ github.repository_owner }}|g" docs/trigger.html
+          sed -i "s|{{GT_REPO}}|${{ github.event.repository.name }}|g" docs/trigger.html
+
+      - name: 💾 Commit updated trigger.html
         run: |
           git config --global user.name "github-pages-bot"
           git config --global user.email "pages@github.com"
-          git add docs/choose.html
-          git commit -m "🔧 inject token for Pages" || echo "no change"
+          git add docs/trigger.html
+          git commit -m "🔧 Inject token & repo info into trigger.html" || echo "no change"
           git push
