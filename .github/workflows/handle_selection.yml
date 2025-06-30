@@ -1,39 +1,29 @@
-name: Handle Post Selection
+name: Handle Selected LinkedIn Post
 
 on:
-  repository_dispatch:
-    types: [select_post]
+  workflow_dispatch:
+    inputs:
+      choice:
+        description: 'Index of the chosen LinkedIn post'
+        required: true
 
 jobs:
-  pick_variant:
+  pick-and-commit:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
       - name: Extract selected post
         run: |
-          CHOICE=${{ github.event.client_payload.choice }}
-          echo "User picked option: $CHOICE"
-
-          # Extract the selected variant
-          awk -v RS='--- OPTION [0-9]+ ---' "NR==$((CHOICE+1))" linkedin_post.txt > final_post.txt
-
-          echo "✅ Extracted post to final_post.txt"
-
+          idx=${{ github.event.inputs.choice }}
+          awk -v RS='--- OPTION [0-9]+ ---' "
+            NR==\$((idx+1))" linkedin_post.txt > final_post.txt
       - name: Commit final post
-        env:
-          TOKEN: ${{ secrets.FG_PAT }}
         run: |
-          git config user.name "ai-trend-agent"
-          git config user.email "ai-trend-agent@users.noreply.github.com"
-          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
+          git config user.name "trendbot"
+          git config user.email "trendbot@users.noreply.github.com"
           git add final_post.txt
-          git commit -m "✅ Committed selected LinkedIn post (Option ${{ github.event.client_payload.choice }})"
+          git commit -m "✅ Commit selected LinkedIn post (Option ${{ github.event.inputs.choice }})" || echo "No changes"
           git push
-
