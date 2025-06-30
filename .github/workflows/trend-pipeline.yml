@@ -45,8 +45,7 @@ jobs:
         run: |
           sed -i "s|{{GT_OWNER}}|Alritz-space|g" docs/choose.html
           sed -i "s|{{GT_REPO}}|pm-ai-trend-agent|g" docs/choose.html
-          sed -i "s|{{GITHUB_TOKEN}}|${{ secrets.FG_PAT }}|g" docs/choose.html
-
+          
       - name: 🔐 Set up SSH (for Git push)
         uses: webfactory/ssh-agent@v0.9.1
         with:
